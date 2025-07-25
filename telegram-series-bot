@@ -1,1 +1,35 @@
-# telegram-series-bo
+import telebot
+
+# 🔑 توكن البوت
+API_TOKEN = '8077784427:AAFXM_QfoC_i-TEeowgAlRjwdrRm78YpWVc'
+bot = telebot.TeleBot(API_TOKEN)
+
+# 🎬 قاعدة بيانات مسلسلات بسيطة (تقدر تربطها بفيريبيس لاحقًا)
+series = {
+    "الحافظ الحامي": [
+        {"title": "الحلقة 1", "url": "https://example.com/h1.mp4"},
+        {"title": "الحلقة 2", "url": "https://example.com/h2.mp4"}
+    ],
+    "حلم أشرف": [
+        {"title": "الحلقة 1", "url": "https://example.com/a1.mp4"}
+    ]
+}
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    text = "🎬 أهلاً بك في بوت المسلسلات!\n\nاكتب اسم المسلسل لعرض الحلقات المتاحة."
+    bot.send_message(message.chat.id, text)
+
+@bot.message_handler(func=lambda m: True)
+def handle_series(message):
+    name = message.text.strip()
+    if name in series:
+        eps = series[name]
+        reply = f"📺 الحلقات المتوفرة لمسلسل *{name}*:\n\n"
+        for ep in eps:
+            reply += f"🎞️ {ep['title']}\n🔗 {ep['url']}\n\n"
+        bot.send_message(message.chat.id, reply, parse_mode="Markdown")
+    else:
+        bot.send_message(message.chat.id, "❌ لم أجد هذا المسلسل. حاول مرة أخرى.")
+
+bot.polling(non_stop=True)
